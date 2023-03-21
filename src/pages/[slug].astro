@@ -1,0 +1,30 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getEntryBySlug, getCollection } from "astro:content";
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const entries = await getCollection("docs");
+  console.dir({ entries });
+  return entries.map((entry) => ({
+    params: {
+      slug: entry.slug,
+    },
+  }));
+};
+console.log(Astro.params);
+const { slug } = Astro.params;
+
+if (!slug) {
+  return new Response("Not Found", { status: 404 });
+}
+
+const entry = await getEntryBySlug("docs", slug);
+
+if (!entry) {
+  return new Response("Not Found", { status: 404 });
+}
+
+const { Content } = await entry.render();
+---
+
+<Content />
